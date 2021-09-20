@@ -16,3 +16,7 @@ COPY . /app
 
 # Install python packages
 RUN pip install -r ./requirements.prod.txt
+
+ENV PYTHONPATH /app
+
+LABEL org.opencontainers.image.source="https://github.com/hankehly/browserbots"

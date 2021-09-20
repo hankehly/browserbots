@@ -1,5 +1,6 @@
 # unique to dockerignore
 .git
+.github
 
 # shared w/gitignore
 __pycache__

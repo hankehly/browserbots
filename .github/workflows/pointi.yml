@@ -1,0 +1,17 @@
+name: pointi-daily
+
+on:
+  schedule:
+    - cron: '0 8 * * *'
+
+jobs:
+  run_daily_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: run
+        run: >
+          docker run --rm ghcr.io/hankehly/browserbots:latest python /app/browserbots/browserbots/pointi/pointi.py
+            --email ${{ secrets.POINTI_EMAIL }}
+            --password ${{ secrets.POINTI_PASSWORD }}
+            --headless
+            --no-sandbox
