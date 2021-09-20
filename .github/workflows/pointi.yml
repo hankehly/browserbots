@@ -19,7 +19,8 @@ jobs:
         run: |
           # You're running into the same problem as this guy
           # https://stackoverflow.com/questions/68794334/github-action-with-selenium-and-docker
-          docker run --rm ghcr.io/hankehly/browserbots:latest python /app/browserbots/pointi/pointi.py \
+          docker run --rm --network host ghcr.io/hankehly/browserbots:latest python /app/browserbots/pointi/pointi.py \
             --email ${{ secrets.POINTI_EMAIL }} \
             --password ${{ secrets.POINTI_PASSWORD }} \
+            --headless \
             --no-sandbox
