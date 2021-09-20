@@ -16,9 +16,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: run
-        run: >
-          docker run --rm ghcr.io/hankehly/browserbots:latest python /app/browserbots/pointi/pointi.py
-            --email ${{ secrets.POINTI_EMAIL }}
-            --password ${{ secrets.POINTI_PASSWORD }}
-            --headless
+        run: |
+          docker run --rm ghcr.io/hankehly/browserbots:latest python /app/browserbots/pointi/pointi.py \
+            --email ${{ secrets.POINTI_EMAIL }} \
+            --password ${{ secrets.POINTI_PASSWORD }} \
+            --headless \
             --no-sandbox
