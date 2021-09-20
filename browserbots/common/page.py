@@ -10,7 +10,7 @@ class BasePage:
 
 
 class WaitPageElement(BaseModel):
-    timeout: NonNegativeInt = 10
+    timeout: NonNegativeInt = 30
     condition: Any
 
     def wait(self, driver):
