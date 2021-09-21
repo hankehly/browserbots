@@ -19,8 +19,18 @@ jobs:
         run: |
           # You're running into the same problem as this guy
           # https://stackoverflow.com/questions/68794334/github-action-with-selenium-and-docker
-          docker run --rm --network host ghcr.io/hankehly/browserbots:latest python /app/browserbots/pointi/pointi.py \
+          mkdir -p ${{ github.workspace }}/screenshots
+          docker run --rm -v "${{ github.workspace }}/screenshots:/app/screenshots" \
+            --network host ghcr.io/hankehly/browserbots:latest python /app/browserbots/pointi/pointi.py \
             --email ${{ secrets.POINTI_EMAIL }} \
             --password ${{ secrets.POINTI_PASSWORD }} \
             --headless \
             --no-sandbox
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        if: ${{ failure() }}
+        with:
+          name: pointi-daily-screenshots
+          path: ${{ github.workspace }}/screenshots
+          if-no-files-found: 'ignore'
+

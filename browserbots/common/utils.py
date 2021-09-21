@@ -1,8 +1,11 @@
 import argparse
 import enum
 import random
+import time
 
 from pydantic import BaseModel
+
+from browserbots.common.settings import SCREENSHOTS_DIR
 
 # Todo: Include more, move to separate text file
 options = [
@@ -89,3 +92,17 @@ class ParseArgsMixin:
         instance = cls(**vars(args))
 
         return instance
+
+
+def save_screenshot(*, driver, output_path: str = None):
+    """
+    Todo: Check behavior difference when headless vs not headless
+    """
+    if output_path is None:
+        name = "screenshot-" + str(int(time.time() * 1000)) + ".png"
+        output_path = str(SCREENSHOTS_DIR / name)
+        SCREENSHOTS_DIR.mkdir(exist_ok=True)
+    width = driver.execute_script("return document.body.scrollWidth")
+    height = driver.execute_script("return document.body.scrollHeight")
+    driver.set_window_size(width, height)
+    driver.save_screenshot(output_path)
