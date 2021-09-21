@@ -25,7 +25,8 @@ jobs:
             --email ${{ secrets.POINTI_EMAIL }} \
             --password ${{ secrets.POINTI_PASSWORD }} \
             --headless \
-            --no-sandbox
+            --no-sandbox \
+            --page-load-strategy normal
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         if: ${{ failure() }}
