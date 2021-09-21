@@ -32,6 +32,12 @@ jobs:
           push: true
           tags: ghcr.io/hankehly/browserbots:latest
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
+        with:
+          limit-access-to-actor: true
+
       - name: Test run
         run: |
           # You're running into the same problem as this guy
@@ -51,9 +57,3 @@ jobs:
           name: pointi-daily-screenshots
           path: ${{ github.workspace }}/screenshots
           if-no-files-found: 'ignore'
-
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
-        with:
-          limit-access-to-actor: true
