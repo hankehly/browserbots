@@ -2,6 +2,11 @@ name: pointi-daily
 
 on:
   workflow_dispatch:
+    inputs:
+      debug_enabled:
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        default: "false"
   schedule:
     - cron: '0 8 * * *'
 
@@ -9,13 +14,25 @@ jobs:
   run_daily_job:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: run
+
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/hankehly/browserbots:latest
+
+      - name: Test run
         run: |
           # You're running into the same problem as this guy
           # https://stackoverflow.com/questions/68794334/github-action-with-selenium-and-docker
@@ -25,8 +42,8 @@ jobs:
             --email ${{ secrets.POINTI_EMAIL }} \
             --password ${{ secrets.POINTI_PASSWORD }} \
             --headless \
-            --no-sandbox \
-            --page-load-strategy normal
+            --no-sandbox
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         if: ${{ failure() }}
@@ -35,3 +52,8 @@ jobs:
           path: ${{ github.workspace }}/screenshots
           if-no-files-found: 'ignore'
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
+        with:
+          limit-access-to-actor: true
