@@ -48,6 +48,7 @@ jobs:
             -e CONNECT=Japan \
             -e TECHNOLOGY=NordLynx ghcr.io/bubuntux/nordvpn
 
+          # In place of a healthcheck (for now)
           echo "Wait 5 seconds before attempting to connect to VPN"
           sleep 5
 

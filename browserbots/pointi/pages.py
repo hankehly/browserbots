@@ -47,7 +47,7 @@ class DailyPage(BasePage):
 
     def print_point_count(self) -> None:
         point_count = self.driver.find_element_by_css_selector(".pt_count").text
-        print(f"current point count: {point_count}")
+        print(f"Current point count is {point_count}")
 
     def _is_visited(self, link):
         return link.text.strip() == "クリック済みです"
@@ -56,21 +56,21 @@ class DailyPage(BasePage):
         return link.text.strip().startswith("クリックで")
 
     def click_unvisited_links(self, *, dry_run) -> None:
-        visited, unvisited = [], []
+        visited_count = 0
+        unvisited = []
 
         for link in self.links.wait(self.driver):
             if self._is_visited(link):
-                visited.append(link)
+                visited_count += 1
             elif self._is_unvisited(link):
                 unvisited.append(link)
 
         if dry_run:
-            print("skipping link clicks (dry run)")
+            print("Skipping link clicks (dry run)")
         else:
             for link in unvisited:
                 link.click()
                 time.sleep(1)
 
-        print(f"links already visited: {len(visited)}")
-        print(f"unvisited links clicked this run: {len(unvisited)}")
-
+        print(f"Success! Clicked {len(unvisited)} links.")
+        print(f"{visited_count} link(s) were already clicked.")

@@ -1,8 +1,31 @@
+from pydantic import Field, SecretStr
 from selenium.webdriver import Chrome
-from browserbots.pointi.config import Config
+
+from browserbots.common.utils import BotConfig, PageLoadStrategy
 from browserbots.pointi import pages
 
+
 LOGIN_PAGE_URI = "https://pointi.jp/entrance.php"
+
+
+class Config(BotConfig):
+    """
+    Configuration for pointi job
+    """
+
+    email: SecretStr = Field(description="Login email")
+    password: SecretStr = Field(description="Login password")
+    dry_run: bool = Field(
+        default=False,
+        description=(
+            "If True, do not actually click any unvisited links on the daily page "
+            "(default: False)"
+        ),
+    )
+
+    @classmethod
+    def page_load_strategy(cls):
+        return PageLoadStrategy.Eager
 
 
 def main(*, config: Config):
@@ -25,5 +48,4 @@ def main(*, config: Config):
 
 
 if __name__ == "__main__":
-    config = Config.parse_args()
-    main(config=config)
+    main(config=Config.parse_args())
