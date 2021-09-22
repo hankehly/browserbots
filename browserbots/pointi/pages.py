@@ -71,4 +71,6 @@ class DailyPage(BasePage):
                 link.click()
                 time.sleep(1)
 
-        print(f"visited: {len(visited)}, unvisited: {len(unvisited)}")
+        print(f"links already visited: {len(visited)}")
+        print(f"unvisited links clicked this run: {len(unvisited)}")
+
