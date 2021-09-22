@@ -2,11 +2,6 @@ name: pointi-daily
 
 on:
   workflow_dispatch:
-    inputs:
-      debug_enabled:
-        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
-        required: false
-        default: "false"
   schedule:
     - cron: '0 8 * * *'
 
@@ -31,12 +26,6 @@ jobs:
           context: .
           push: true
           tags: ghcr.io/hankehly/browserbots:latest
-
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
-        with:
-          limit-access-to-actor: true
 
       - name: Test run
         run: |
