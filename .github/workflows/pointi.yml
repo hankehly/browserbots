@@ -48,6 +48,9 @@ jobs:
             -e CONNECT=Japan \
             -e TECHNOLOGY=NordLynx ghcr.io/bubuntux/nordvpn
 
+          echo "Wait 5 seconds before attempting to connect to VPN"
+          sleep 5
+
           mkdir -p ${{ github.workspace }}/screenshots
 
           docker run --rm -v "${{ github.workspace }}/screenshots:/app/screenshots" \
