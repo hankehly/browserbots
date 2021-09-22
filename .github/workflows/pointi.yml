@@ -34,7 +34,7 @@ jobs:
             --name nordvpn \
             -e USER=${{ secrets.NORDVPN_EMAIL }} \
             -e PASS=${{ secrets.NORDVPN_PASSWORD }} \
-            -e CONNECT=Japan
+            -e CONNECT=Japan \
             -e TECHNOLOGY=NordLynx ghcr.io/bubuntux/nordvpn
 
           mkdir -p ${{ github.workspace }}/screenshots
