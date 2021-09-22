@@ -2,6 +2,11 @@ name: pointi-daily
 
 on:
   workflow_dispatch:
+    inputs:
+      debug_enabled:
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        default: false
   schedule:
     - cron: '0 8 * * *'
 
@@ -27,6 +32,12 @@ jobs:
           push: true
           tags: ghcr.io/hankehly/browserbots:latest
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
+        with:
+          limit-access-to-actor: true
+
       - name: Test run
         run: |
           docker run --rm -d \
@@ -40,7 +51,7 @@ jobs:
           mkdir -p ${{ github.workspace }}/screenshots
 
           docker run --rm -v "${{ github.workspace }}/screenshots:/app/screenshots" \
-            --network container:nordvpn ghcr.io/hankehly/browserbots:latest python /app/browserbots/pointi/pointi.py \
+            --network="container:nordvpn" ghcr.io/hankehly/browserbots:latest python /app/browserbots/pointi/pointi.py \
             --email ${{ secrets.POINTI_EMAIL }} \
             --password ${{ secrets.POINTI_PASSWORD }} \
             --headless \
