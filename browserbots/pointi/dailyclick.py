@@ -31,7 +31,7 @@ def main(*, config: Config):
     logger = config.get_stdout_logger("pointi.dailyclick")
 
     driver = Chrome(**config.chrome_driver_kwargs)
-    logger.info("Starting job: pointi.dailyclick")
+    logger.info("Starting job")
 
     try:
         driver.get(LOGIN_PAGE_URI)
@@ -57,9 +57,11 @@ def main(*, config: Config):
         logger.info(f"Current point count is {point_count}")
     except Exception as e:
         save_screenshot(driver=driver)
+        driver.quit()
         raise e
-
-    logger.info("Job complete")
+    else:
+        logger.info("Job completed successfully")
+        driver.quit()
 
 
 if __name__ == "__main__":
