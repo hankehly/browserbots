@@ -1,4 +1,4 @@
-name: pointi-daily
+name: daily-build
 
 on:
   workflow_dispatch:
@@ -49,54 +49,49 @@ jobs:
         with:
           limit-access-to-actor: true
 
+      - name: Start VPN container
+        run: |
+          docker run -d \
+            --cap-add=NET_ADMIN \
+            --name vpn-japan \
+            -e USER=${{ secrets.NORDVPN_EMAIL }} \
+            -e PASS=${{ secrets.NORDVPN_PASSWORD }} \
+            -e CONNECT=Japan \
+            -e TECHNOLOGY=NordLynx ghcr.io/bubuntux/vpn-japan
+
+          # Todo: Replace with some sort of healthcheck
+          echo "Wait 3 seconds to allow VPN to become healthy.."
+          sleep 3
+
       - name: Create screenshots directory
         run: mkdir -p screenshots
 
-      - name: Run test dailyclick job
+      - name: pointi.dailyclick
         run: |
-          docker run --rm -d \
-            --cap-add=NET_ADMIN \
-            --name nordvpn \
-            -e USER=${{ secrets.NORDVPN_EMAIL }} \
-            -e PASS=${{ secrets.NORDVPN_PASSWORD }} \
-            -e CONNECT=Japan \
-            -e TECHNOLOGY=NordLynx ghcr.io/bubuntux/nordvpn
-
-          # Todo: Replace with some sort of healthcheck
-          echo "Wait 3 seconds before attempting to connect to VPN"
-          sleep 3
-
           docker run --rm -v "${{ github.workspace }}/screenshots:/app/screenshots" \
-            --network="container:nordvpn" ghcr.io/hankehly/browserbots:latest python /app/browserbots/pointi/dailyclick.py \
+            --network="container:vpn-japan" ghcr.io/hankehly/browserbots:latest python /app/browserbots/pointi/dailyclick.py \
             --email ${{ secrets.POINTI_EMAIL }} \
             --password ${{ secrets.POINTI_PASSWORD }} \
             --headless \
             --no-sandbox
 
-          docker stop nordvpn
-
-      - name: Run test magazine job
+      - name: pointi.magazine
         run: |
-          docker run --rm -d \
-            --cap-add=NET_ADMIN \
-            --name nordvpn \
-            -e USER=${{ secrets.NORDVPN_EMAIL }} \
-            -e PASS=${{ secrets.NORDVPN_PASSWORD }} \
-            -e CONNECT=Japan \
-            -e TECHNOLOGY=NordLynx ghcr.io/bubuntux/nordvpn
-
-          # Todo: Replace with some sort of healthcheck
-          echo "Wait 3 seconds before attempting to connect to VPN"
-          sleep 3
-
           docker run --rm -v "${{ github.workspace }}/screenshots:/app/screenshots" \
-            --network="container:nordvpn" ghcr.io/hankehly/browserbots:latest python /app/browserbots/pointi/magazine.py \
+            --network="container:vpn-japan" ghcr.io/hankehly/browserbots:latest python /app/browserbots/pointi/magazine.py \
             --email ${{ secrets.POINTI_EMAIL }} \
             --password ${{ secrets.POINTI_PASSWORD }} \
             --headless \
             --no-sandbox
 
-          docker stop nordvpn
+      #- name: honeygain.honeyjar
+      #  run: |
+      #    docker run --rm -v "${{ github.workspace }}/screenshots:/app/screenshots" \
+      #      --network="container:vpn-japan" ghcr.io/hankehly/browserbots:latest python /app/browserbots/honeygain/honeyjar.py \
+      #      --email ${{ secrets.HONEYGAIN_EMAIL }} \
+      #      --password ${{ secrets.HONEYGAIN_PASSWORD }} \
+      #      --headless \
+      #      --no-sandbox
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
