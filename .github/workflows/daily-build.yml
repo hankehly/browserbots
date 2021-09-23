@@ -57,7 +57,7 @@ jobs:
             -e USER=${{ secrets.NORDVPN_EMAIL }} \
             -e PASS=${{ secrets.NORDVPN_PASSWORD }} \
             -e CONNECT=Japan \
-            -e TECHNOLOGY=NordLynx ghcr.io/bubuntux/vpn-japan
+            -e TECHNOLOGY=NordLynx ghcr.io/bubuntux/nordvpn
 
           # Todo: Replace with some sort of healthcheck
           echo "Wait 3 seconds to allow VPN to become healthy.."
@@ -93,9 +93,9 @@ jobs:
       #      --headless \
       #      --no-sandbox
 
-      - name: Upload artifacts
+      - name: Upload screenshots
         uses: actions/upload-artifact@v2
         with:
-          name: pointi-daily-screenshots
+          name: screenshots
           path: ${{ github.workspace }}/screenshots
           if-no-files-found: 'ignore'
