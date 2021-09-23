@@ -2,22 +2,50 @@ import argparse
 import enum
 import random
 import time
-from selenium.webdriver import ChromeOptions
+
 from pydantic import BaseModel, Field
+from selenium.webdriver import ChromeOptions
 
-from browserbots.common.settings import SCREENSHOTS_DIR
+from browserbots.common.settings import BASE_PACKAGE_PATH, SCREENSHOTS_DIR
 
-# Todo: Include more, move to separate text file
-options = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.157 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36",
-]
+USER_AGENTS_TXT = BASE_PACKAGE_PATH / "common" / "desktop_user_agents.txt"
+
+PYDANTIC_TYPE_TO_CALLABLE = {
+    "string": str,
+    "integer": int,
+    "boolean": bool,
+}
 
 
 def get_random_user_agent() -> str:
-    return random.choice(options)
+    with open(USER_AGENTS_TXT) as fo:
+        return random.choice(fo.readlines()).strip()
+
+
+# def save_screenshot_on_exception(func):
+#     @functools.wraps(func)
+#     def wrapper(*args, **kwargs):
+#         try:
+#             return func(*args, **kwargs)
+#         except Exception as e:
+#             save_screenshot()
+#             raise e
+#
+#     return wrapper
+
+
+def save_screenshot(*, driver, output_path: str = None):
+    """
+    Todo: Check behavior difference when headless vs not headless
+    """
+    if output_path is None:
+        name = "screenshot-" + str(int(time.time() * 1000)) + ".png"
+        output_path = str(SCREENSHOTS_DIR / name)
+        SCREENSHOTS_DIR.mkdir(exist_ok=True)
+    width = driver.execute_script("return document.body.scrollWidth")
+    height = driver.execute_script("return document.body.scrollHeight")
+    driver.set_window_size(width, height)
+    driver.save_screenshot(output_path)
 
 
 class Capability:
@@ -30,16 +58,16 @@ class PageLoadStrategy(str, enum.Enum):
     None_ = "none"
 
 
-PYDANTIC_TYPE_TO_CALLABLE = {
-    "string": str,
-    "integer": int,
-    "boolean": bool,
-}
-
-
 class ParseArgsMixin:
+    """
+    Provides a parse_args method to pydantic models
+    """
+
     @classmethod
     def parse_args(cls):
+        """
+        Dynamically builds model using argparse library
+        """
         assert issubclass(cls, BaseModel)
 
         schema = cls.schema()
@@ -89,23 +117,9 @@ class ParseArgsMixin:
             parser.add_argument(arg_name, **add_argument_kwargs)
 
         args = parser.parse_args()
-        instance = cls(**vars(args))
+        instance = cls.parse_obj(vars(args))
 
         return instance
-
-
-def save_screenshot(*, driver, output_path: str = None):
-    """
-    Todo: Check behavior difference when headless vs not headless
-    """
-    if output_path is None:
-        name = "screenshot-" + str(int(time.time() * 1000)) + ".png"
-        output_path = str(SCREENSHOTS_DIR / name)
-        SCREENSHOTS_DIR.mkdir(exist_ok=True)
-    width = driver.execute_script("return document.body.scrollWidth")
-    height = driver.execute_script("return document.body.scrollHeight")
-    driver.set_window_size(width, height)
-    driver.save_screenshot(output_path)
 
 
 class BotConfig(BaseModel, ParseArgsMixin):
@@ -149,9 +163,6 @@ class BotConfig(BaseModel, ParseArgsMixin):
     def _chrome_options(self) -> ChromeOptions:
         user_agent = get_random_user_agent()
         opt = ChromeOptions()
-        # The "normal" mode takes way too long for this website and problems finding
-        # elements also arise for some reason. Eager seems to work fine. The "none" mode
-        # is not able to find required elements.
         opt.set_capability(Capability.PageLoadStrategy, self.page_load_strategy())
         opt.headless = self.headless
         if self.no_sandbox:
