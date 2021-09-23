@@ -152,8 +152,7 @@ class MagazineArticleDetail(BasePage):
     """
 
     continue_btn = WaitPageElement(
-        condition=EC.element_to_be_clickable((By.ID, "move_page")),
-        timeout=5
+        condition=EC.element_to_be_clickable((By.ID, "move_page"))
     )
 
     stamp_list = WaitPageElement(

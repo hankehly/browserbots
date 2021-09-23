@@ -28,7 +28,10 @@ class Config(BotConfig):
 
 
 def main(*, config: Config):
+    logger = config.get_stdout_logger("pointi.dailyclick")
+
     driver = Chrome(**config.chrome_driver_kwargs)
+    logger.info("Starting job: pointi.dailyclick")
 
     try:
         driver.get(LOGIN_PAGE_URI)
@@ -45,18 +48,18 @@ def main(*, config: Config):
         daily = pages.DailyPage(driver=driver)
         result = daily.click_unvisited_links(dry_run=config.dry_run)
 
-        print(
+        logger.info(
             f"Success! Clicked {result.unvisited} links. "
             f"{result.visited} link(s) were already clicked."
         )
 
         point_count = daily.get_point_count()
-        print(f"Current point count is {point_count}")
+        logger.info(f"Current point count is {point_count}")
     except Exception as e:
         save_screenshot(driver=driver)
         raise e
 
-    print("Job complete")
+    logger.info("Job complete")
 
 
 if __name__ == "__main__":

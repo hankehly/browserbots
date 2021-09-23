@@ -1,6 +1,8 @@
 import argparse
 import enum
+import logging
 import random
+import sys
 import time
 
 from pydantic import BaseModel, Field
@@ -20,18 +22,6 @@ PYDANTIC_TYPE_TO_CALLABLE = {
 def get_random_user_agent() -> str:
     with open(USER_AGENTS_TXT) as fo:
         return random.choice(fo.readlines()).strip()
-
-
-# def save_screenshot_on_exception(func):
-#     @functools.wraps(func)
-#     def wrapper(*args, **kwargs):
-#         try:
-#             return func(*args, **kwargs)
-#         except Exception as e:
-#             save_screenshot()
-#             raise e
-#
-#     return wrapper
 
 
 def save_screenshot(*, driver, output_path: str = None):
@@ -122,6 +112,17 @@ class ParseArgsMixin:
         return instance
 
 
+class LogLevel(str, enum.Enum):
+    Critical = "CRITICAL"
+    Fatal = "FATAL"
+    Error = "ERROR"
+    Warning = "WARNING"
+    Warn = "WARN"
+    Info = "INFO"
+    Debug = "DEBUG"
+    NotSet = "NOTSET"
+
+
 class BotConfig(BaseModel, ParseArgsMixin):
     chromedriver_executable_path: str = Field(
         default="chromedriver",
@@ -137,6 +138,7 @@ class BotConfig(BaseModel, ParseArgsMixin):
             "False)"
         ),
     )
+    log_level: LogLevel = LogLevel.Info
 
     class Config:
         use_enum_values = True
@@ -169,3 +171,15 @@ class BotConfig(BaseModel, ParseArgsMixin):
             opt.add_argument("--no-sandbox")
         opt.add_argument(f"user-agent={user_agent}")
         return opt
+
+    def get_stdout_logger(self, name: str) -> logging.Logger:
+        logger = logging.getLogger(name)
+        logger.setLevel(self.log_level)
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setLevel(self.log_level)
+        formatter = logging.Formatter(
+            "%(asctime)s | %(name)s | %(levelname)s | %(message)s"
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        return logger

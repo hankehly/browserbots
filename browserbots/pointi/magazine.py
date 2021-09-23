@@ -1,5 +1,3 @@
-import time
-
 from pydantic import Field, SecretStr
 from selenium.webdriver import Chrome
 
@@ -23,7 +21,10 @@ class Config(BotConfig):
 
 
 def main(*, config: Config):
+    logger = config.get_stdout_logger("pointi.magazine")
+
     driver = Chrome(**config.chrome_driver_kwargs)
+    logger.info("Starting job: pointi.magazine")
 
     try:
         driver.get(LOGIN_PAGE_URI)
@@ -43,28 +44,28 @@ def main(*, config: Config):
 
         queue = magazine_urls.copy()
 
-        print("Added the following magazine URLs to work queue:")
+        logger.info("Added the following magazine URLs to work queue:")
         for i, url in enumerate(queue, start=1):
-            print(f"({i}) {url}")
+            logger.info(f"({i}) {url}")
 
         while queue:
             magazine_url = queue[0]
 
-            print(f"Navigating to magazine url: {magazine_url}")
+            logger.info(f"Navigating to magazine url: {magazine_url}")
             driver.get(magazine_url)
 
             article_list = pages.MagazineArticleList(driver=driver)
             articles = article_list.list_article_items()
 
             if articles[0].has_stamp_icon:
-                print(
+                logger.info(
                     f"Magazine ({magazine_url}) has no more unread articles. "
                     f"Continuing to next."
                 )
                 queue.pop(0)
                 continue
 
-            print("Magazine has unread articles.")
+            logger.info("Magazine has unread articles.")
             article_list.click_nth_article_link(0)
             detail = pages.MagazineArticleDetail(driver=driver)
 
@@ -73,12 +74,12 @@ def main(*, config: Config):
                 page_count += 1
                 detail.continue_to_next_page()
 
-            print(f"Finished {page_count} page article, continuing to next.")
+            logger.info(f"Finished {page_count} page article, continuing to next.")
     except Exception as e:
         save_screenshot(driver=driver)
         raise e
 
-    print("Job complete")
+    logger.info("Job complete")
 
 
 if __name__ == "__main__":

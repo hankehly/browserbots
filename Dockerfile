@@ -1,5 +1,7 @@
 FROM python:3.9.7
 
+LABEL org.opencontainers.image.source="https://github.com/hankehly/browserbots"
+
 WORKDIR /app
 
 # Install google-chrome
@@ -12,11 +14,10 @@ RUN wget -q -O - https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$(go
 RUN wget -q -O ./chromedriver_linux64.zip https://chromedriver.storage.googleapis.com/$(cat LATEST_RELEASE)/chromedriver_linux64.zip
 RUN unzip ./chromedriver_linux64.zip && mv ./chromedriver /usr/local/bin/chromedriver
 
-COPY . /app
-
 # Install python packages
+COPY ./requirements.prod.txt .
 RUN pip install -r ./requirements.prod.txt
 
+# Copy the rest of the source code into the image
+COPY . /app
 ENV PYTHONPATH /app
-
-LABEL org.opencontainers.image.source="https://github.com/hankehly/browserbots"
