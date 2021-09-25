@@ -66,24 +66,6 @@ jobs:
       - name: Create screenshots directory
         run: mkdir -p screenshots
 
-      - name: pointi.dailyclick
-        run: |
-          docker run --rm -v "${{ github.workspace }}/screenshots:/app/screenshots" \
-            --network="container:vpn-japan" ghcr.io/hankehly/browserbots:latest python /app/browserbots/pointi/dailyclick.py \
-            --email ${{ secrets.POINTI_EMAIL }} \
-            --password '${{ secrets.POINTI_PASSWORD }}' \
-            --headless \
-            --no-sandbox
-
-      - name: pointi.magazine
-        run: |
-          docker run --rm -v "${{ github.workspace }}/screenshots:/app/screenshots" \
-            --network="container:vpn-japan" ghcr.io/hankehly/browserbots:latest python /app/browserbots/pointi/magazine.py \
-            --email ${{ secrets.POINTI_EMAIL }} \
-            --password '${{ secrets.POINTI_PASSWORD }}' \
-            --headless \
-            --no-sandbox
-
       - name: honeygain.honeyjar
         run: |
           docker run --rm -v "${{ github.workspace }}/screenshots:/app/screenshots" \
