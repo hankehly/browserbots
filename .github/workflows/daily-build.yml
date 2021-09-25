@@ -49,20 +49,6 @@ jobs:
         with:
           limit-access-to-actor: true
 
-      - name: Start VPN container
-        run: |
-          docker run -d \
-            --cap-add=NET_ADMIN \
-            --name vpn-japan \
-            -e USER=${{ secrets.NORDVPN_EMAIL }} \
-            -e PASS=${{ secrets.NORDVPN_PASSWORD }} \
-            -e CONNECT=Japan \
-            -e TECHNOLOGY=NordLynx ghcr.io/bubuntux/nordvpn
-
-          # Todo: Replace with some sort of healthcheck
-          echo "Wait 3 seconds to allow VPN to become healthy.."
-          sleep 3
-
       - name: Create screenshots directory
         run: mkdir -p screenshots
 
