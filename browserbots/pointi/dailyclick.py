@@ -55,13 +55,13 @@ def main(*, config: Config):
 
         point_count = daily.get_point_count()
         logger.info(f"Current point count is {point_count}")
+
+        logger.info("Job completed successfully")
+        driver.quit()
     except Exception as e:
         save_screenshot(driver=driver)
         driver.quit()
         raise e
-    else:
-        logger.info("Job completed successfully")
-        driver.quit()
 
 
 if __name__ == "__main__":

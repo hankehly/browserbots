@@ -75,13 +75,13 @@ def main(*, config: Config):
                 detail.continue_to_next_page()
 
             logger.info(f"Finished {page_count} page article, continuing to next.")
+
+        logger.info("Job completed successfully")
+        driver.quit()
     except Exception as e:
         save_screenshot(driver=driver)
         driver.quit()
         raise e
-    else:
-        logger.info("Job completed successfully")
-        driver.quit()
 
 
 if __name__ == "__main__":

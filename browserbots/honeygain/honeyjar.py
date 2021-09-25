@@ -40,13 +40,13 @@ def main(*, config: Config):
             dash.open_honey_jar()
         else:
             logger.info("Honey jar is not available.")
+
+        logger.info("Job completed successfully")
+        driver.quit()
     except Exception as e:
         save_screenshot(driver=driver)
         driver.quit()
         raise e
-    finally:
-        logger.info("Job completed successfully")
-        driver.quit()
 
 
 if __name__ == "__main__":
