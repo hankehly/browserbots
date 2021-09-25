@@ -87,7 +87,7 @@ jobs:
       - name: honeygain.honeyjar
         run: |
           docker run --rm -v "${{ github.workspace }}/screenshots:/app/screenshots" \
-            --network="container:vpn-japan" ghcr.io/hankehly/browserbots:latest python /app/browserbots/honeygain/honeyjar.py \
+            ghcr.io/hankehly/browserbots:latest python /app/browserbots/honeygain/honeyjar.py \
             --email ${{ secrets.HONEYGAIN_EMAIL }} \
             --password ${{ secrets.HONEYGAIN_PASSWORD }} \
             --headless \
