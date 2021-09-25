@@ -29,7 +29,7 @@ class LoginPage(BasePage):
     def login(self, *, email: str, password: str):
         self.input_mail.wait(self.driver).send_keys(email)
         self.input_pass.wait(self.driver).send_keys(password)
-        self.submit_btn.wait(self.driver).click()
+        self.submit_btn.wait(self.driver).submit()
 
 
 class Dashboard(BasePage):
