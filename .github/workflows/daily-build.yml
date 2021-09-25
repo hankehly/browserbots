@@ -84,17 +84,18 @@ jobs:
             --headless \
             --no-sandbox
 
-      #- name: honeygain.honeyjar
-      #  run: |
-      #    docker run --rm -v "${{ github.workspace }}/screenshots:/app/screenshots" \
-      #      --network="container:vpn-japan" ghcr.io/hankehly/browserbots:latest python /app/browserbots/honeygain/honeyjar.py \
-      #      --email ${{ secrets.HONEYGAIN_EMAIL }} \
-      #      --password ${{ secrets.HONEYGAIN_PASSWORD }} \
-      #      --headless \
-      #      --no-sandbox
+      - name: honeygain.honeyjar
+        run: |
+          docker run --rm -v "${{ github.workspace }}/screenshots:/app/screenshots" \
+            --network="container:vpn-japan" ghcr.io/hankehly/browserbots:latest python /app/browserbots/honeygain/honeyjar.py \
+            --email ${{ secrets.HONEYGAIN_EMAIL }} \
+            --password ${{ secrets.HONEYGAIN_PASSWORD }} \
+            --headless \
+            --no-sandbox
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v2
+        if: ${{ failure() }}
         with:
           name: screenshots
           path: ${{ github.workspace }}/screenshots
