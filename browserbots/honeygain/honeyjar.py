@@ -35,7 +35,11 @@ def main(*, config: Config):
         )
 
         dash = pages.Dashboard(driver=driver)
-        dash.open_honey_jar()
+        if dash.is_honey_jar_ready_to_open():
+            logger.info("Honey jar is available. Opening.")
+            dash.open_honey_jar()
+        else:
+            logger.info("Honey jar is not available.")
     except Exception as e:
         save_screenshot(driver=driver)
         driver.quit()
