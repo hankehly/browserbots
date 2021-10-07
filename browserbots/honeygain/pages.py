@@ -8,6 +8,12 @@ from browserbots.common.page import BasePage, WaitPageElement
 
 
 class LoginPage(BasePage):
+    accept_cookies_btn = WaitPageElement(
+        condition=EC.element_to_be_clickable(
+            (By.XPATH, "//button/span[text()='Accept selected']")
+        )
+    )
+
     input_mail = WaitPageElement(
         condition=EC.presence_of_element_located(
             (By.CSS_SELECTOR, "form input[type='email']")
@@ -27,6 +33,7 @@ class LoginPage(BasePage):
     )
 
     def login(self, *, email: str, password: str):
+        self.accept_cookies_btn.wait(self.driver).click()
         self.input_mail.wait(self.driver).send_keys(email)
         self.input_pass.wait(self.driver).send_keys(password)
         self.submit_btn.wait(self.driver).submit()
